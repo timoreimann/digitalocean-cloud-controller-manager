@@ -179,11 +179,11 @@ func TestE2E(t *testing.T) {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
-						corev1.Container{
+						{
 							Name:  "nginx",
 							Image: "nginx",
 							Ports: []corev1.ContainerPort{
-								corev1.ContainerPort{
+								{
 									ContainerPort: 80,
 								},
 							},
@@ -232,7 +232,7 @@ func TestE2E(t *testing.T) {
 					},
 					Type: corev1.ServiceTypeLoadBalancer,
 					Ports: []corev1.ServicePort{
-						corev1.ServicePort{
+						{
 							Port: 80,
 						},
 					},
