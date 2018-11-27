@@ -152,11 +152,12 @@ func TestE2E(t *testing.T) {
 
 				gotNodes = nl.Items
 				numReadyNodes = 0
+			Nodes:
 				for _, node := range gotNodes {
 					// Make sure the "uninitialized" node taint is missing.
 					for _, taint := range node.Spec.Taints {
 						if taint.Key == algorithm.TaintExternalCloudProvider {
-							continue
+							continue Nodes
 						}
 					}
 
