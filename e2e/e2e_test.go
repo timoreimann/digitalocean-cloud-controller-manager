@@ -36,10 +36,11 @@ import (
 )
 
 const (
-	numWantNodes          = 2
-	doLabel               = "beta.kubernetes.io/instance-type"
-	kopsEnvVarClusterName = "KOPS_CLUSTER_NAME"
-	kopsEnvVarStateStore  = "KOPS_STATE_STORE"
+	numWantNodes           = 2
+	uninitializedNodeTaint = "node.cloudprovider.kubernetes.io/uninitialized"
+	doLabel                = "beta.kubernetes.io/instance-type"
+	kopsEnvVarClusterName  = "KOPS_CLUSTER_NAME"
+	kopsEnvVarStateStore   = "KOPS_STATE_STORE"
 )
 
 // TestE2E verifies that the node and service controller work as intended for
@@ -150,6 +151,15 @@ func TestE2E(t *testing.T) {
 				gotNodes = nl.Items
 				numReadyNodes = 0
 				for _, node := range gotNodes {
+					// Make sure the "uninitialized" node taint is missing.
+					for _, taint := range node.Spec.Taints {
+						if taint.Key == unitializedNodeTaint {
+							continue
+						}
+					}
+
+					// Make sure the node is ready and has a DO-specific label
+					// attached.
 					for _, cond := range node.Status.Conditions {
 						if cond.Type == corev1.NodeReady && cond.Status == corev1.ConditionTrue {
 							if _, ok := node.Labels[doLabel]; ok {
