@@ -33,14 +33,14 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/kubernetes/pkg/scheduler/algorithm"
 )
 
 const (
-	numWantNodes           = 2
-	uninitializedNodeTaint = "node.cloudprovider.kubernetes.io/uninitialized"
-	doLabel                = "beta.kubernetes.io/instance-type"
-	kopsEnvVarClusterName  = "KOPS_CLUSTER_NAME"
-	kopsEnvVarStateStore   = "KOPS_STATE_STORE"
+	numWantNodes          = 2
+	doLabel               = "beta.kubernetes.io/instance-type"
+	kopsEnvVarClusterName = "KOPS_CLUSTER_NAME"
+	kopsEnvVarStateStore  = "KOPS_STATE_STORE"
 )
 
 // TestE2E verifies that the node and service controller work as intended for
@@ -153,7 +153,7 @@ func TestE2E(t *testing.T) {
 				for _, node := range gotNodes {
 					// Make sure the "uninitialized" node taint is missing.
 					for _, taint := range node.Spec.Taints {
-						if taint.Key == uninitializedNodeTaint {
+						if taint.Key == algorithm.TaintExternalCloudProvider {
 							continue
 						}
 					}
