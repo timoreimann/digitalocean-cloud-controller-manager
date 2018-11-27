@@ -109,7 +109,7 @@ func TestE2E(t *testing.T) {
 			}
 			defer func() {
 				if err := s3Cl.deleteSpace(storeName); err != nil {
-					t.Fatalf("failed to delete space %q (post-test): %s", storeName, err)
+					t.Errorf("failed to delete space %q (post-test): %s", storeName, err)
 				}
 			}()
 
@@ -256,7 +256,7 @@ func TestE2E(t *testing.T) {
 			// removed, at least not on DO. Hence, we'll do it explicitly.
 			defer func() {
 				if err := cs.CoreV1().Services(corev1.NamespaceDefault).Delete(svcName, &metav1.DeleteOptions{}); err != nil {
-					t.Fatalf("failed to delete service: %s", err)
+					t.Errorf("failed to delete service: %s", err)
 				}
 			}()
 
