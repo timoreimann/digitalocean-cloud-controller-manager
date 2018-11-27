@@ -269,8 +269,8 @@ func TestE2E(t *testing.T) {
 				if err != nil {
 					return false, err
 				}
-				for _, ing := range svc.Status.LoadBalancer.Ingress {
-					lbAddr = ing.IP
+				if len(svc.Status.LoadBalancer.Ingress) > 0 {
+					lbAddr = svc.Status.LoadBalancer.Ingress[0].IP
 					return true, nil
 				}
 
