@@ -23,8 +23,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
-	"strconv"
 	"testing"
 	"time"
 
@@ -86,55 +84,16 @@ func TestE2E(t *testing.T) {
 		tt := tt
 		t.Run(tt.desc, func(t *testing.T) {
 			l := log.New(os.Stdout, fmt.Sprintf("[%s] ", t.Name()), 0)
-			dnsName := toDNSName(t.Name())
 
-			wd, err := os.Getwd()
-			if err != nil {
-				t.Fatalf("failed to get working directory: %s", err)
-			}
-			kubeConfFile := path.Join(wd, "kubeconfig-e2e."+dnsName)
-
-			// Delete old kubeconfig
-			if err := os.Remove(kubeConfFile); err != nil && !os.IsNotExist(err) {
-				t.Fatalf("failed to delete kubeconfig %q: %s", kubeConfFile, err)
-			}
-
-			// Create space.
-			storeName := toS3Name(fmt.Sprintf("%s-%s", os.Getenv(kopsEnvVarClusterName), dnsName))
-			if err := s3Cl.deleteSpace(storeName); err != nil {
-				t.Fatalf("failed to delete space %q (pre-test): %s", storeName, err)
-			}
-			if err := s3Cl.ensureSpace(storeName); err != nil {
-				t.Fatalf("failed to ensure space %q: %s", storeName, err)
-			}
+			cs, cleanup, err := setupCluster(l, s3Cl, t.Name(), tt.kubeVer)
 			defer func() {
-				l.Printf("Deleting space %q\n", storeName)
-				if err := s3Cl.deleteSpace(storeName); err != nil {
-					t.Errorf("failed to delete space %q (post-test): %s", storeName, err)
+				l.Println("Cleaning up cluster")
+				if err := cleanup(); err != nil {
+					t.Errorf("failed to clean up after test: %s", err)
 				}
 			}()
-
-			// Create cluster.
-			extraEnvs := []string{
-				fmt.Sprintf("%s=do://%s", kopsEnvVarStateStore, storeName),
-				"KUBECONFIG=" + kubeConfFile,
-			}
-			if err := runScript(extraEnvs, "destroy_cluster.sh"); err != nil {
-				t.Fatalf("failed to destroy cluster (pre-test): %s", err)
-			}
-			if err := runScript(extraEnvs, "setup_cluster.sh", tt.kubeVer, strconv.Itoa(numWantNodes)); err != nil {
+			if err != nil {
 				t.Fatalf("failed to set up cluster: %s", err)
-			}
-			defer func() {
-				l.Println("Destroying cluster")
-				if err := runScript(extraEnvs, "destroy_cluster.sh"); err != nil {
-					t.Errorf("failed to destroy cluster (post-test): %s", err)
-				}
-			}()
-
-			cs, err := kubeClient(kubeConfFile)
-			if err != nil {
-				t.Fatalf("failed to create Kubernetes client: %s", err)
 			}
 
 			// Check that nodes become ready.
