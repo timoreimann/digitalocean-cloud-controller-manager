@@ -20,5 +20,5 @@ The following environment parameters are optional:
 - `SSH_PUBLIC_KEYFILE`: path to the public SSH key matching the private key configured on DigitalOcean (default: `$HOME/.ssh/id_rsa.pub`)
 
 `e2e.sh` invokes the end-to-end tests which in turn invoke `setup_cluster.sh` and `destroy_cluster.sh` to create clusters before the test executes and tears them down again on completion of a test, respectively. The scripts may also be called manually, which then needs the `KOPS_STATE_STORE` environment variable to be set explicitly and point to the Spaces bucket name as in `do://myuniquespace`.
- 
- `e2e.sh` takes as an optional parameter a string passed to `go test`'s `-run` flag to filter for specific tests.
+
+`e2e.sh` reads the `E2E_RUN_FILTER` environment variable and passes any non-empty content to `go test`'s `-run` flag to filter for specific tests.
