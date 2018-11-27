@@ -153,7 +153,7 @@ func TestE2E(t *testing.T) {
 				for _, node := range gotNodes {
 					// Make sure the "uninitialized" node taint is missing.
 					for _, taint := range node.Spec.Taints {
-						if taint.Key == unitializedNodeTaint {
+						if taint.Key == uninitializedNodeTaint {
 							continue
 						}
 					}
