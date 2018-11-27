@@ -108,6 +108,7 @@ func TestE2E(t *testing.T) {
 				t.Fatalf("failed to ensure space %q: %s", storeName, err)
 			}
 			defer func() {
+				l.Printf("Deleting space %q\n", storeName)
 				if err := s3Cl.deleteSpace(storeName); err != nil {
 					t.Errorf("failed to delete space %q (post-test): %s", storeName, err)
 				}
@@ -125,6 +126,7 @@ func TestE2E(t *testing.T) {
 				t.Fatalf("failed to set up cluster: %s", err)
 			}
 			defer func() {
+				l.Println("Destroying cluster")
 				if err := runScript(extraEnvs, "destroy_cluster.sh"); err != nil {
 					t.Errorf("failed to destroy cluster (post-test): %s", err)
 				}
@@ -255,6 +257,7 @@ func TestE2E(t *testing.T) {
 			// External LBs don't seem to get deleted when the kops cluster is
 			// removed, at least not on DO. Hence, we'll do it explicitly.
 			defer func() {
+				l.Printf("Deleting service %q\n", svcName)
 				if err := cs.CoreV1().Services(corev1.NamespaceDefault).Delete(svcName, &metav1.DeleteOptions{}); err != nil {
 					t.Errorf("failed to delete service: %s", err)
 				}
