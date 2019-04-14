@@ -1,5 +1,7 @@
 language: go
 
+go_import_path: github.com/digitalocean/digitalocean-cloud-controller-manager
+
 go:
   - "1.11.x"
   - "1.12.x"
@@ -10,6 +12,5 @@ script:
   - GO111MODULE=on go install -mod=vendor golang.org/x/lint/golint
   - make ci
 
-branches:
-  only:
-    - master
+notifications:
+  email: false
