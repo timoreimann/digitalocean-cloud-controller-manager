@@ -9,7 +9,7 @@ go:
 dist: trusty
 
 script:
-  - go install -mod=vendor golang.org/x/lint/golint
+  - go install golang.org/x/lint/golint
   - make ci
 
 notifications:
